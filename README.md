@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/gsimone/gg-vite-r3f/main/cover.png" alt="A grid and an octahedron with normal material" />
+
 ### Usage
 
 ```
