@@ -1,20 +1,26 @@
 import * as React from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, extend } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+
+import { Toaster } from 'react-hot-toast'
+
+import ShaderMaterial from './ShaderMaterial'
 
 function Scene() {
 
   return (
     <mesh>
       <octahedronGeometry />
-      <meshNormalMaterial />
+      <ShaderMaterial />
     </mesh>
   )
 
 }
 
 function undepth(obj: any) {
-  obj.material.depthWrite = false
+  if (obj) {
+    obj.material.depthWrite = false
+  }
 }
 
 function App() {
@@ -32,6 +38,7 @@ function App() {
         <Scene />
         <OrbitControls />
       </Canvas>
+      <div><Toaster/></div>
     </div>
   )
 }
