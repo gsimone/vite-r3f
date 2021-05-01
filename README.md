@@ -1,7 +1,7 @@
-<img src="https://raw.githubusercontent.com/gsimone/gg-vite-r3f/main/cover.png" alt="A grid and an octahedron with normal material" />
+<img src="https://raw.githubusercontent.com/gsimone/vite-r3f/main/cover.png" alt="A grid and an octahedron with normal material" />
 
 ### Usage
 
 ```
-npx degit gsimone/gg-vite-r3f  
+npx degit gsimone/vite-r3f  
 ```
