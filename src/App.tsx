@@ -1,46 +1,106 @@
-import * as React from 'react'
-import { Canvas, extend } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import * as THREE from 'three';
+import * as React from 'react';
+import { Canvas, createPortal, extend, useFrame } from '@react-three/fiber';
+import { OrthographicCamera, useFBO } from '@react-three/drei';
 
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast';
 
-import ShaderMaterial from './ShaderMaterial'
+import { FBODebug, FBOGUI, OrbitControls, TransformControls } from './utils';
+
+import ShaderMaterial from './ShaderMaterial';
+import DebugGrid from './utils/DebugGrid';
+import useStore from './store';
 
 function Scene() {
+	const [ref, setRef] = React.useState(null!);
 
-  return (
-    <mesh>
-      <octahedronGeometry />
-      <ShaderMaterial />
-    </mesh>
-  )
+	const fbo = useFBO(256, 256);
+	console.log(fbo)
 
+	React.useEffect(() => {
+		useStore.setState(draft => {
+			draft.fbos['test'] = fbo
+		})
+	}, [fbo])
+
+	useFrame(({ gl, scene, camera }) => {
+		gl.setRenderTarget(fbo);
+		gl.render(scene, camera);
+	}, 2);
+
+	return (
+		<>
+			<TransformControls object={ref} />
+
+			<mesh ref={setRef}>
+				<octahedronGeometry />
+				<ShaderMaterial />
+			</mesh>
+		</>
+	);
 }
 
-function undepth(obj: any) {
-  if (obj) {
-    obj.material.depthWrite = false
-  }
+function GUI() {
+	const firstFBO = useStore((state) => state.fbos.test);
+	const [guiScene] = React.useState(new THREE.Scene());
+	const guiCamera = React.useRef();
+
+	useFrame(({ gl }) => {
+		// render GUI panels on top of main scene
+		gl.render(guiScene, guiCamera.current);
+		gl.autoClear = true;
+	}, 12);
+
+	return (
+		<>
+			{createPortal(<FBOGUI>
+				{firstFBO && <FBODebug fbo={firstFBO} />}
+				{firstFBO && <FBODebug fbo={firstFBO} />}
+			</FBOGUI>, guiScene)}
+
+			<OrthographicCamera ref={guiCamera} near={0.0001} far={1} />
+		</>
+	);
+}
+
+function Renderer() {
+	useFrame(({ gl }) => {
+		gl.autoClear = false;
+	}, -1);
+
+	useFrame(({ gl, scene, camera }) => {
+		gl.setRenderTarget(null);
+		gl.render(scene, camera);
+	}, 10);
+
+	useFrame(({ gl }) => {
+		gl.autoClear = true;
+	}, 20);
+
+	return null;
 }
 
 function App() {
-  return (
-    <div id="canvas">
-      <Canvas camera={{ position: [5, 5, 5]}}>
-        <color attach="background" args={['#17141F']} />
-        
-        <group>
-          <gridHelper ref={undepth}  renderOrder={9000} args={[1000, 1000, '#17141F', '#060606']} />
-          <gridHelper ref={undepth}  renderOrder={9001} color="red" args={[100, 100, '#fff', '#17141F']} scale={10} />
-          <axesHelper ref={undepth} renderOrder={9002} scale={20} />
-        </group>
-        
-        <Scene />
-        <OrbitControls />
-      </Canvas>
-      <div><Toaster/></div>
-    </div>
-  )
+	return (
+		<div id="canvas">
+			<Canvas camera={{ position: [5, 5, 5] }}>
+				<GUI />
+
+				<color attach="background" args={['#17141F']} />
+
+				<DebugGrid />
+
+				<Scene />
+				<OrbitControls />
+
+				<Renderer />
+			</Canvas>
+
+			<div>
+				<Toaster />
+			</div>
+		</div>
+	);
 }
 
-export default App
+export default App;

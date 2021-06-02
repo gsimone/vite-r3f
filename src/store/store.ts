@@ -1,13 +1,21 @@
-import create, { State, StateCreator } from 'zustand'
-import produce, { Draft } from 'immer'
+import create, { State, StateCreator } from 'zustand';
+import produce, { Draft } from 'immer';
+import { WebGLRenderTarget } from 'three';
 
 // Immer V9
-const immer = <T extends State>( config: StateCreator<T, (fn: (draft: Draft<T>) => void) => void> ): StateCreator<T> => (set, get, api) => config((fn) => set(produce<T>(fn)), get, api)
+const immer = <T extends State>(
+  config: StateCreator<T, (fn: (draft: Draft<T>) => void) => void>
+): StateCreator<T> => (set, get, api) =>
+  config((fn) => set(produce<T>(fn)), get, api)
 
-const useStore = create(
-  immer((set) => ({
-    test: 123,
-  })),
-)
+type MyState = {
+	fbos: Record<string, WebGLRenderTarget>;
+};
 
-export default useStore
+const useStore = create<MyState>(immer((set, get) => ({
+	fbos: {}
+})));
+
+// useStore.subscribe(console.log)
+
+export default useStore;

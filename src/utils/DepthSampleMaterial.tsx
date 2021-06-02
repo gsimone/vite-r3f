@@ -1,0 +1,44 @@
+import { shaderMaterial } from '@react-three/drei'
+import { extend } from '@react-three/fiber'
+
+const defaultVertexShader = /* glsl */ `
+varying vec2 vUv;
+
+void main() {
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vUv = uv;
+}`
+
+export const DepthSampleMaterial = shaderMaterial(
+  {
+    u_depth: null,
+    u_resolution: [window.innerWidth, window.innerHeight],
+    cameraNear: 0,
+    cameraFar: 1
+  },
+  defaultVertexShader,
+  /* glsl */ `
+#include <packing>
+  
+varying vec2 vUv;
+uniform sampler2D u_depth;
+
+uniform float cameraNear;
+uniform float cameraFar;
+
+float readDepth( sampler2D depthSampler, vec2 coord ) {
+  float fragCoordZ = texture2D( depthSampler, coord ).x;
+  float viewZ = orthographicDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+  return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+}
+
+void main() {
+  float depth = readDepth( u_depth, vUv );
+
+  gl_FragColor.rgb = 1.0 - vec3( depth );
+  gl_FragColor.a = 1.0;
+}
+`
+)
+
+extend({ DepthSampleMaterial })
