@@ -1,12 +1,15 @@
 import * as React from 'react'
+import { Text } from '@react-three/drei'
 import { WebGLRenderTarget } from 'three'
 
+import './DepthSampleMaterial'
+
 type FBODebugProps = {
-  fbo: WebGLRenderTarget
+  fbo: WebGLRenderTarget,
 }
 
-const FBODebug: React.FC<FBODebugProps> = ({
-  fbo
+export const FBODebug: React.FC<FBODebugProps> = ({
+  fbo,
 }) => {
 
   return <mesh>
@@ -16,4 +19,12 @@ const FBODebug: React.FC<FBODebugProps> = ({
 
 }
 
-export default FBODebug
+export const FBODepthDebug: React.FC<FBODebugProps> = ({
+fbo,
+}) => {
+
+  return <mesh>
+    <planeGeometry />
+    <depthSampleMaterial u_depth={fbo.depthTexture} />
+  </mesh>
+}

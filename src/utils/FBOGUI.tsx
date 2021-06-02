@@ -18,7 +18,9 @@ const FBOGUI: React.FC<FBOGUIProps> =  ({ children }) => {
   position-y={size.height / 2 - SIZE / 2}
   position-x={-size.width / 2 + SIZE / 2}>
     {React.Children.map(children, (child, i) => {
-      return <group scale={SIZE} position-y={-SIZE * i - (MARGIN * i)}>{child}</group>
+      return <group scale-x={size.width/size.height * SIZE} scale-y={SIZE} position-y={-SIZE * i - (MARGIN * i)}>
+        {child}
+      </group>
     })}
   </group>
 

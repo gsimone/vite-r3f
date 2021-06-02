@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import * as React from 'react';
-import { Canvas, createPortal, extend, useFrame } from '@react-three/fiber';
+import { Canvas, createPortal, extend, useFrame, useThree } from '@react-three/fiber';
 import { OrthographicCamera, useFBO } from '@react-three/drei';
 
 import { Toaster } from 'react-hot-toast';
 
-import { FBODebug, FBOGUI, OrbitControls, TransformControls } from './utils';
+import { FBODebug, FBODepthDebug, FBOGUI, OrbitControls, TransformControls } from './utils';
 
 import ShaderMaterial from './ShaderMaterial';
 import DebugGrid from './utils/DebugGrid';
@@ -14,8 +14,10 @@ import useStore from './store';
 function Scene() {
 	const [ref, setRef] = React.useState(null!);
 
-	const fbo = useFBO(256, 256);
-	console.log(fbo)
+	const fbo = useFBO(256, 256, {
+		depthBuffer: true,
+		depthTexture: new THREE.DepthTexture(256, 256)
+	});
 
 	React.useEffect(() => {
 		useStore.setState(draft => {
@@ -54,8 +56,8 @@ function GUI() {
 	return (
 		<>
 			{createPortal(<FBOGUI>
-				{firstFBO && <FBODebug fbo={firstFBO} />}
-				{firstFBO && <FBODebug fbo={firstFBO} />}
+				{firstFBO && <FBODebug name="Main" fbo={firstFBO} />}
+				{firstFBO && <FBODepthDebug name="Depth" fbo={firstFBO} />}
 			</FBOGUI>, guiScene)}
 
 			<OrthographicCamera ref={guiCamera} near={0.0001} far={1} />
