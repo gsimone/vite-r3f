@@ -16,14 +16,14 @@ function Scene() {
 
 	const fbo = useFBO(256, 256, {
 		depthBuffer: true,
-		depthTexture: new THREE.DepthTexture(256, 256)
+		depthTexture: new THREE.DepthTexture(256, 256),
 	});
 
 	React.useEffect(() => {
-		useStore.setState(draft => {
-			draft.fbos['test'] = fbo
-		})
-	}, [fbo])
+		useStore.setState((draft) => {
+			draft.fbos['test'] = fbo;
+		});
+	}, [fbo]);
 
 	useFrame(({ gl, scene, camera }) => {
 		gl.setRenderTarget(fbo);
@@ -36,7 +36,12 @@ function Scene() {
 
 			<mesh ref={setRef}>
 				<octahedronGeometry />
-				<ShaderMaterial />
+				<meshNormalMaterial />
+			</mesh>
+
+			<mesh position-x={-10} scale={4}>
+				<octahedronGeometry />
+				<meshNormalMaterial />
 			</mesh>
 		</>
 	);
@@ -55,10 +60,13 @@ function GUI() {
 
 	return (
 		<>
-			{createPortal(<FBOGUI>
-				{firstFBO && <FBODebug name="Main" fbo={firstFBO} />}
-				{firstFBO && <FBODepthDebug name="Depth" fbo={firstFBO} />}
-			</FBOGUI>, guiScene)}
+			{createPortal(
+				<FBOGUI>
+					{firstFBO && <FBODebug name="Main" fbo={firstFBO} />}
+					{firstFBO && <FBODepthDebug name="Depth" fbo={firstFBO} />}
+				</FBOGUI>,
+				guiScene
+			)}
 
 			<OrthographicCamera ref={guiCamera} near={0.0001} far={1} />
 		</>
@@ -85,7 +93,7 @@ function Renderer() {
 function App() {
 	return (
 		<div id="canvas">
-			<Canvas camera={{ position: [5, 5, 5] }}>
+			<Canvas camera={{ position: [5, 5, 5], near: 0.1, far: 1000 }}>
 				<GUI />
 
 				<color attach="background" args={['#17141F']} />

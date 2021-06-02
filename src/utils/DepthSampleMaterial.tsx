@@ -12,7 +12,6 @@ void main() {
 export const DepthSampleMaterial = shaderMaterial(
   {
     u_depth: null,
-    u_resolution: [window.innerWidth, window.innerHeight],
     cameraNear: 0,
     cameraFar: 1
   },
@@ -35,7 +34,7 @@ float readDepth( sampler2D depthSampler, vec2 coord ) {
 void main() {
   float depth = readDepth( u_depth, vUv );
 
-  gl_FragColor.rgb = 1.0 - vec3( depth );
+  gl_FragColor.rgb = 1.0 - vec3( pow(depth, 20.) );
   gl_FragColor.a = 1.0;
 }
 `
